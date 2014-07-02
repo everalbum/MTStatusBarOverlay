@@ -90,7 +90,7 @@ MAX([UIApplication sharedApplication].statusBarFrame.size.width, [UIApplication 
 // Progress
 ///////////////////////////////////////////////////////
 
-#define kProgressViewAlpha                          0.4f
+#define kProgressViewAlpha                          1.0f
 #define kProgressViewBackgroundColor                [UIColor colorWithRed:0.0f green:0.0f blue:0.0f alpha:1.0f]
 
 
@@ -374,6 +374,13 @@ kDetailViewWidth, kHistoryTableRowHeight*kMaxHistoryTableRowCount + kStatusBarHe
 		statusBarBackgroundImageView_.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 		[self addSubviewToBackgroundView:statusBarBackgroundImageView_];
         
+        progress_ = 1.0;
+        progressView_ = [[UIImageView alloc] initWithFrame:statusBarBackgroundImageView_.frame];
+        progressView_.opaque = NO;
+        progressView_.hidden = YES;
+        progressView_.alpha = kProgressViewAlpha;
+        [self addSubviewToBackgroundView:progressView_];
+        
 		// Activity Indicator
 		activityIndicator_ = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
 		activityIndicator_.frame = CGRectMake(6.f, 3.f, backgroundView_.frame.size.height - 6.f, backgroundView_.frame.size.height - 6.f);
@@ -435,13 +442,6 @@ kDetailViewWidth, kHistoryTableRowHeight*kMaxHistoryTableRowCount + kStatusBarHe
         
 		// the hidden status label at the beginning
 		hiddenStatusLabel_ = statusLabel2_;
-        
-        progress_ = 1.0;
-        progressView_ = [[UIImageView alloc] initWithFrame:statusBarBackgroundImageView_.frame];
-        progressView_.opaque = NO;
-        progressView_.hidden = YES;
-        progressView_.alpha = kProgressViewAlpha;
-        [self addSubviewToBackgroundView:progressView_];
         
 		messageQueue_ = [[NSMutableArray alloc] init];
 		canRemoveImmediateMessagesFromQueue_ = YES;
@@ -717,8 +717,7 @@ kDetailViewWidth, kHistoryTableRowHeight*kMaxHistoryTableRowCount + kStatusBarHe
     if (animated) {
         // set text of currently not visible label to new text
         self.hiddenStatusLabel.text = message;
-        // update progressView to only cover displayed text
-        [self updateProgressViewSizeForLabel:self.hiddenStatusLabel];
+        [self updateProgressViewSize];
         
         // position hidden status label under visible status label
         self.hiddenStatusLabel.frame = CGRectMake(self.hiddenStatusLabel.frame.origin.x,
@@ -774,7 +773,7 @@ kDetailViewWidth, kHistoryTableRowHeight*kMaxHistoryTableRowCount + kStatusBarHe
         // set new text
         self.visibleStatusLabel.text = message;
         // update progressView to only cover displayed text
-        [self updateProgressViewSizeForLabel:self.visibleStatusLabel];
+        [self updateProgressViewSize];
         
         // remove the message from the queue
         @synchronized(self.messageQueue) {
@@ -934,7 +933,7 @@ kDetailViewWidth, kHistoryTableRowHeight*kMaxHistoryTableRowCount + kStatusBarHe
     }
     
     // update UI on main thread
-    [self performSelectorOnMainThread:@selector(updateProgressViewSizeForLabel:) withObject:self.visibleStatusLabel waitUntilDone:NO];
+    [self performSelectorOnMainThread:@selector(updateProgressViewSize) withObject:nil waitUntilDone:NO];
 }
 
 - (void)setDetailText:(NSString *)detailText {
@@ -1363,26 +1362,18 @@ kDetailViewWidth, kHistoryTableRowHeight*kMaxHistoryTableRowCount + kStatusBarHe
     self.detailTextView.frame = f;
 }
 
-- (void)updateProgressViewSizeForLabel:(UILabel *)label {
+- (void)updateProgressViewSize {
     if (self.progress < 1.) {
-        CGSize size = [label sizeThatFits:label.frame.size];
-        CGFloat width = size.width * (float)(1. - self.progress);
-        CGFloat x = label.center.x + size.width/2.f - width;
-        
-        // if we werent able to determine a size, do nothing
-        if (size.width == 0.f) {
-            return;
-        }
-        
-        // progressView always covers only the visible portion of the text
-        // it "shrinks" to the right with increased progress to reveal more
-        // text under it
+        CGFloat width = self.backgroundView.frame.size.width * (float)(self.progress);
+
         self.progressView.hidden = NO;
-        //[UIView animateWithDuration:self.progress > 0.0 ? kUpdateProgressViewDuration : 0.0
-        //                 animations:^{
-        self.progressView.frame = CGRectMake(x, self.progressView.frame.origin.y,
-                                             self.backgroundView.frame.size.width-x, self.progressView.frame.size.height);
-        //                 }];
+        [UIView animateWithDuration:self.progress > 0.0 ? kUpdateProgressViewDuration : 0.0
+                         animations:^{
+                             self.progressView.frame = CGRectMake(0,
+                                                                  self.progressView.frame.origin.y,
+                                                                  width,
+                                                                  self.progressView.frame.size.height);
+                         }];
     } else {
         self.progressView.hidden = YES;
     }
