@@ -98,6 +98,8 @@ typedef enum MTMessageType {
 @property (nonatomic, strong) UIImage *defaultStatusBarImage;
 // the image used when the Status Bar Style is Default and the Overlay is shrinked
 @property (nonatomic, strong) UIImage *defaultStatusBarImageShrinked;
+// the image used for the progress bar
+@property (nonatomic, strong) UIImage *defaultProgressBarImage;
 // detect if status bar is currently shrinked
 @property (nonatomic, readonly, getter=isShrinked) BOOL shrinked;
 // detect if detailView is currently hidden

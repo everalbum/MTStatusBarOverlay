@@ -65,9 +65,6 @@ MAX([UIApplication sharedApplication].statusBarFrame.size.width, [UIApplication 
 #define kLightThemeTextColor						[UIColor blackColor]
 #define kLightThemeErrorMessageTextColor            [UIColor blackColor] // [UIColor colorWithRed:0.494898f green:0.330281f blue:0.314146f alpha:1.0f]
 #define kLightThemeFinishedMessageTextColor         [UIColor blackColor] // [UIColor colorWithRed:0.389487f green:0.484694f blue:0.38121f alpha:1.0f]
-#define kLightThemeShadowColor                      [UIColor whiteColor]
-#define kLightThemeErrorMessageShadowColor          [UIColor whiteColor]
-#define kLightThemeFinishedMessageShadowColor       [UIColor whiteColor]
 #define kLightThemeActivityIndicatorViewStyle		UIActivityIndicatorViewStyleGray
 #define kLightThemeDetailViewBackgroundColor		[UIColor blackColor]
 #define kLightThemeDetailViewBorderColor			[UIColor darkGrayColor]
@@ -207,7 +204,7 @@ kDetailViewWidth, kHistoryTableRowHeight*kMaxHistoryTableRowCount + kStatusBarHe
 // updates the visiblity of the activity indicator and finished-label depending on the type
 - (void)updateUIForMessageType:(MTMessageType)messageType duration:(NSTimeInterval)duration;
 // updates the size of the progressView to always cover only the displayed text-frame
-- (void)updateProgressViewSizeForLabel:(UILabel *)label;
+- (void)updateProgressViewSize;
 // calls the delegate when a switch from one message to another one occured
 - (void)callDelegateWithNewMessage:(NSString *)newMessage;
 // update the height of the detail text view according to new text
@@ -256,6 +253,7 @@ kDetailViewWidth, kHistoryTableRowHeight*kMaxHistoryTableRowCount + kStatusBarHe
 @synthesize hidesActivity = hidesActivity_;
 @synthesize defaultStatusBarImage = defaultStatusBarImage_;
 @synthesize defaultStatusBarImageShrinked = defaultStatusBarImageShrinked_;
+@synthesize defaultProgressBarImage = defaultProgressBarImage_;
 @synthesize smallFrame = smallFrame_;
 @synthesize oldBackgroundViewFrame = oldBackgroundViewFrame_;
 @synthesize animation = animation_;
@@ -314,11 +312,6 @@ kDetailViewWidth, kHistoryTableRowHeight*kMaxHistoryTableRowCount + kStatusBarHe
 		detailView_.layer.masksToBounds = YES;
 		detailView_.layer.cornerRadius = 10.f;
 		detailView_.layer.borderWidth = 2.5f;
-		// add shadow
-		/*detailView_.layer.shadowColor = [UIColor blackColor].CGColor;
-         detailView_.layer.shadowOpacity = 1.0f;
-         detailView_.layer.shadowRadius = 6.0f;
-         detailView_.layer.shadowOffset = CGSizeMake(0, 3);*/
         
 		// Detail Text label
 		detailTextView_ = [[UITextView alloc] initWithFrame:CGRectMake(0, kStatusBarHeight,
@@ -395,7 +388,6 @@ kDetailViewWidth, kHistoryTableRowHeight*kMaxHistoryTableRowCount + kStatusBarHe
         
 		// Finished-Label
 		finishedLabel_ = [[UILabel alloc] initWithFrame:CGRectMake(4.f,1.f,backgroundView_.frame.size.height, backgroundView_.frame.size.height-1.f)];
-		finishedLabel_.shadowOffset = CGSizeMake(0.f, 1.f);
 		finishedLabel_.backgroundColor = [UIColor clearColor];
 		finishedLabel_.hidden = YES;
 		finishedLabel_.text = kFinishedText;
@@ -411,7 +403,6 @@ kDetailViewWidth, kHistoryTableRowHeight*kMaxHistoryTableRowCount + kStatusBarHe
 		// Status Label 1 is first visible
 		statusLabel1_ = [[UILabel alloc] initWithFrame:CGRectMake(30.f, 0.f, backgroundView_.frame.size.width - 60.f,backgroundView_.frame.size.height-1.f)];
 		statusLabel1_.backgroundColor = [UIColor clearColor];
-		statusLabel1_.shadowOffset = CGSizeMake(0.f, 1.f);
 		statusLabel1_.font = [UIFont boldSystemFontOfSize:kStatusLabelSize];
 		statusLabel1_.numberOfLines = 1;
 #ifdef __IPHONE_6_0
@@ -426,7 +417,6 @@ kDetailViewWidth, kHistoryTableRowHeight*kMaxHistoryTableRowCount + kStatusBarHe
         
 		// Status Label 2 is hidden
 		statusLabel2_ = [[UILabel alloc] initWithFrame:CGRectMake(30.f, backgroundView_.frame.size.height,backgroundView_.frame.size.width - 60.f , backgroundView_.frame.size.height-1.f)];
-		statusLabel2_.shadowOffset = CGSizeMake(0.f, 1.f);
 		statusLabel2_.backgroundColor = [UIColor clearColor];
 		statusLabel2_.font = [UIFont boldSystemFontOfSize:kStatusLabelSize];
 		statusLabel2_.numberOfLines = 1;
@@ -1213,25 +1203,16 @@ kDetailViewWidth, kHistoryTableRowHeight*kMaxHistoryTableRowCount + kStatusBarHe
                 self.statusLabel1.textColor = kLightThemeFinishedMessageTextColor;
                 self.statusLabel2.textColor = kLightThemeFinishedMessageTextColor;
                 self.finishedLabel.textColor = kLightThemeFinishedMessageTextColor;
-                self.statusLabel1.shadowColor = kLightThemeFinishedMessageShadowColor;
-                self.statusLabel2.shadowColor = kLightThemeFinishedMessageShadowColor;
-                self.finishedLabel.shadowColor = kLightThemeFinishedMessageShadowColor;
                 break;
             case MTMessageTypeError:
                 self.statusLabel1.textColor = kLightThemeErrorMessageTextColor;
                 self.statusLabel2.textColor = kLightThemeErrorMessageTextColor;
                 self.finishedLabel.textColor = kLightThemeErrorMessageTextColor;
-                self.statusLabel1.shadowColor = kLightThemeErrorMessageShadowColor;
-                self.statusLabel2.shadowColor = kLightThemeErrorMessageShadowColor;
-                self.finishedLabel.shadowColor = kLightThemeErrorMessageShadowColor;
                 break;
             default:
                 self.statusLabel1.textColor = kLightThemeTextColor;
                 self.statusLabel2.textColor = kLightThemeTextColor;
                 self.finishedLabel.textColor = kLightThemeTextColor;
-                self.statusLabel1.shadowColor = kLightThemeShadowColor;
-                self.statusLabel2.shadowColor = kLightThemeShadowColor;
-                self.finishedLabel.shadowColor = kLightThemeShadowColor;
                 break;
         }
         
@@ -1247,7 +1228,7 @@ kDetailViewWidth, kHistoryTableRowHeight*kMaxHistoryTableRowCount + kStatusBarHe
 		self.detailTextView.textColor = kLightThemeHistoryTextColor;
         
         self.progressView.backgroundColor = [UIColor clearColor];
-        self.progressView.image = [self.defaultStatusBarImageShrinked stretchableImageWithLeftCapWidth:2.0f topCapHeight:0.0f];
+        self.progressView.image = [self.defaultProgressBarImage stretchableImageWithLeftCapWidth:2.0f topCapHeight:0.0f];
 	} else {
 		// set color of labels depending on messageType
         switch(messageType) {
@@ -1267,9 +1248,6 @@ kDetailViewWidth, kHistoryTableRowHeight*kMaxHistoryTableRowCount + kStatusBarHe
                 self.finishedLabel.textColor = self.customTextColor ? self.customTextColor: kDarkThemeTextColor;
                 break;
         }
-        self.statusLabel1.shadowColor = nil;
-        self.statusLabel2.shadowColor = nil;
-        self.finishedLabel.shadowColor = nil;
         
 		self.activityIndicator.activityIndicatorViewStyle = kDarkThemeActivityIndicatorViewStyle;
         
