@@ -1341,7 +1341,7 @@ kDetailViewWidth, kHistoryTableRowHeight*kMaxHistoryTableRowCount + kStatusBarHe
 }
 
 - (void)updateProgressViewSize {
-    if (self.progress < 1.) {
+    if (self.progress <= 1.) {
         CGFloat width = self.backgroundView.frame.size.width * (float)(self.progress);
 
         self.progressView.hidden = NO;
