@@ -367,7 +367,7 @@ kDetailViewWidth, kHistoryTableRowHeight*kMaxHistoryTableRowCount + kStatusBarHe
 		statusBarBackgroundImageView_.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 		[self addSubviewToBackgroundView:statusBarBackgroundImageView_];
         
-        progress_ = 1.0;
+        progress_ = 0.0;
         progressView_ = [[UIImageView alloc] initWithFrame:statusBarBackgroundImageView_.frame];
         progressView_.opaque = NO;
         progressView_.hidden = YES;
@@ -1293,7 +1293,7 @@ kDetailViewWidth, kHistoryTableRowHeight*kMaxHistoryTableRowCount + kStatusBarHe
 			// update font and text
 			self.finishedLabel.font = [UIFont fontWithName:@"HelveticaNeue-Bold" size:kFinishedFontSize];
 			self.finishedLabel.text = kFinishedText;
-            self.progress = 1.0;
+            self.progress = 0.0;
 			break;
 		case MTMessageTypeError:
 			// will call hide after delay
@@ -1308,7 +1308,7 @@ kDetailViewWidth, kHistoryTableRowHeight*kMaxHistoryTableRowCount + kStatusBarHe
 			// update font and text
 			self.finishedLabel.font = [UIFont boldSystemFontOfSize:kErrorFontSize];
 			self.finishedLabel.text = kErrorText;
-            self.progress = 1.0;
+            self.progress = 0.0;
 			break;
 	}
     
