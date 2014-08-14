@@ -1177,7 +1177,7 @@ kDetailViewWidth, kHistoryTableRowHeight*kMaxHistoryTableRowCount + kStatusBarHe
 - (void)setStatusBarBackgroundForStyle:(UIStatusBarStyle)style {
 	// gray status bar?
 	// on iPad the Default Status Bar Style is black too
-	if (style == UIStatusBarStyleDefault && !IsIPad && !IsIPhoneEmulationMode) {
+	if (style == UIStatusBarStyleDefault) {
 		// choose image depending on size
 		if (self.shrinked) {
 			self.statusBarBackgroundImageView.image = [self.defaultStatusBarImageShrinked stretchableImageWithLeftCapWidth:2.0f topCapHeight:0.0f];
@@ -1186,6 +1186,15 @@ kDetailViewWidth, kHistoryTableRowHeight*kMaxHistoryTableRowCount + kStatusBarHe
 		}
 		statusBarBackgroundImageView_.backgroundColor = [UIColor clearColor];
 	}
+    else if (style == UIStatusBarStyleLightContent) {
+		// choose image depending on size
+		if (self.shrinked) {
+			self.statusBarBackgroundImageView.image = [self.defaultStatusBarImageShrinked stretchableImageWithLeftCapWidth:2.0f topCapHeight:0.0f];
+		} else {
+			self.statusBarBackgroundImageView.image = [self.defaultStatusBarImage stretchableImageWithLeftCapWidth:2.0f topCapHeight:0.0f];
+		}
+		statusBarBackgroundImageView_.backgroundColor = [UIColor clearColor];
+    }
 	// black status bar? -> no image
 	else {
 		self.statusBarBackgroundImageView.image = nil;
@@ -1196,7 +1205,7 @@ kDetailViewWidth, kHistoryTableRowHeight*kMaxHistoryTableRowCount + kStatusBarHe
 - (void)setColorSchemeForStatusBarStyle:(UIStatusBarStyle)style messageType:(MTMessageType)messageType {
 	// gray status bar?
 	// on iPad the Default Status Bar Style is black too
-	if (style == UIStatusBarStyleDefault && !IsIPad && !IsIPhoneEmulationMode) {
+	if (style == UIStatusBarStyleDefault) {
 		// set color of labels depending on messageType
         switch(messageType) {
             case MTMessageTypeFinish:
@@ -1261,7 +1270,7 @@ kDetailViewWidth, kHistoryTableRowHeight*kMaxHistoryTableRowCount + kStatusBarHe
         self.detailTextView.textColor = kDarkThemeHistoryTextColor;
         
         self.progressView.backgroundColor = kProgressViewBackgroundColor;
-        self.progressView.image = nil;
+        self.progressView.image = [self.defaultProgressBarImage stretchableImageWithLeftCapWidth:2.0f topCapHeight:0.0f];
 	}
 }
 
